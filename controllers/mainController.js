@@ -59,7 +59,7 @@ const getPostPage =  async (req, res) => {
 const postSearch = async (req, res) => {
     try {
       const locals = {
-        title: "Seach",
+        title: "Search",
         description: "Simple Blog created with NodeJs, Express & MongoDb."
       }
   

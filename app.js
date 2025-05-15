@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const mongoose = require('mongoose');
 const express = require('express');
 const expressLayout = require('express-ejs-layouts');
 const methodOverride = require('method-override');
@@ -10,11 +11,25 @@ const MongoStore = require('connect-mongo');
 const mainRoutes = require('./routes/mainRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-const connectDB = require('./config/db');
-const { isActiveRoute } = require('./helpers/routeHelpers');
-
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const { isActiveRoute } = require('./helpers/routeHelpers');
+
+const connectDB = async () => {
+  
+  try {
+    mongoose.set('strictQuery', false);
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    console.log(`Database Connected: ${conn.connection.host}`);
+    app.listen(PORT, ()=> {
+      console.log(`App listening on port ${PORT}`);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+}
   
 // Connect to DB
 connectDB();
@@ -31,7 +46,6 @@ app.use(session({
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI
   }),
-  //cookie: { maxAge: new Date ( Date.now() + (3600000) ) } 
 }));
 
 app.use(express.static('public'));
@@ -47,7 +61,3 @@ app.locals.isActiveRoute = isActiveRoute;
 
 app.use(mainRoutes);
 app.use(adminRoutes);
-
-app.listen(PORT, ()=> {
-  console.log(`App listening on port ${PORT}`);
-});
